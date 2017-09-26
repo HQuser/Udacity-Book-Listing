@@ -1,5 +1,8 @@
 package tn.pk.abdurrehman.booklisting;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -138,11 +141,12 @@ public class QueryUtils {
                 // Get the attributes inside the items array
                 JSONObject itemAttributes = itemsArray.getJSONObject(i);
 
-                // Getting selfLink
-                String selfLink = itemAttributes.getString("selfLink");
 
                 // Get the volume info JSON inside the items array
                 JSONObject volumeInfo = itemAttributes.getJSONObject("volumeInfo");
+
+                // Extarct the infoLink
+                String infoLink = volumeInfo.getString("infoLink");
 
                 // Extract the title
                 String title = volumeInfo.getString("title");
@@ -159,7 +163,7 @@ public class QueryUtils {
                 }
 
                 // Finally add a new Book instance containing the title and authors list
-                books.add(new Book(title, authorsList, selfLink));
+                books.add(new Book(title, authorsList, infoLink));
             }
 
         } catch (JSONException e) {
@@ -172,5 +176,17 @@ public class QueryUtils {
 
     public static String buildQuery(String argument) {
         return "https://www.googleapis.com/books/v1/volumes?q=" + argument;
+    }
+
+    public static boolean hasInternetConnection(Context context) {
+        // Checking internet connection
+        // Get a reference to the ConnectivityManager to check state of network connectivity
+        final ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Get details on the currently active default data network
+        final NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        // If there is no internet connection, simply return
+        return networkInfo != null && networkInfo.isConnected();
     }
 }
