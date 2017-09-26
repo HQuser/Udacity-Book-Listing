@@ -26,7 +26,7 @@ public class BooksLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     public List<Book> loadInBackground() {
-        URL url = QueryUtils.createURL(query);
+        URL url = QueryUtils.createURL(QueryUtils.buildQuery(query));
 
         if (url == null) {
             return null;

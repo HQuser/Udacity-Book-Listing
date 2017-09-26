@@ -73,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return;
         }
 
+        if (keyword.isEmpty()) {
+            emptyView.setText(R.string.no_book_name);
+        }
+
         final Button searchButton = (Button) findViewById(R.id.query_search_button);
 
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -91,23 +95,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     Toast.makeText(MainActivity.this, R.string.no_book_name, Toast.LENGTH_SHORT).show();
 
-                } else if (keywordEntered.equals(keyword)) {
-                    return; // do nothing
+                } else if (!keywordEntered.equals(keyword)) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    keyword = keywordEntered;
+                    getLoaderManager().restartLoader(BOOKS_LOADER_ID, null, MainActivity.this);
                 }
-
-                progressBar.setVisibility(View.VISIBLE);
-
-                getLoaderManager().initLoader(BOOKS_LOADER_ID, null, MainActivity.this).forceLoad();
-
             }
         });
+
+        getLoaderManager().initLoader(BOOKS_LOADER_ID, null, MainActivity.this);
 
     }
 
     @Override
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
-        String query = QueryUtils.buildQuery(keyword);
-        return new BooksLoader(this, query);
+        return new BooksLoader(this, keyword);
     }
 
     @Override
