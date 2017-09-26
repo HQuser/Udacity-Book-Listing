@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -24,7 +25,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
     private static final String TAG = "MainActivity";
     private static final int BOOKS_LOADER_ID = 1;
-    private static String query;
+    private static String keyword = "";
     private ProgressBar progressBar;
     private BooksAdapter mBooksAdapter;
 
@@ -84,14 +85,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
 
                 EditText editText = (EditText) findViewById(R.id.query_edit_text);
-                String keyword = editText.getText().toString();
+                String keywordEntered = editText.getText().toString();
 
-                if (keyword == null || keyword.isEmpty()) {
+                if (keywordEntered == null || keywordEntered.isEmpty()) {
+
                     Toast.makeText(MainActivity.this, R.string.no_book_name, Toast.LENGTH_SHORT).show();
-                } else {
-                    query = QueryUtils.buildQuery(keyword);
-                    getLoaderManager().initLoader(BOOKS_LOADER_ID, null, MainActivity.this);
+
+                } else if (keywordEntered.equals(keyword)) {
+                    return; // do nothing
                 }
+
+                progressBar.setVisibility(View.VISIBLE);
+
+                getLoaderManager().initLoader(BOOKS_LOADER_ID, null, MainActivity.this).forceLoad();
 
             }
         });
@@ -100,11 +106,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        String query = QueryUtils.buildQuery(keyword);
         return new BooksLoader(this, query);
     }
 
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
+        progressBar.setVisibility(View.GONE);
         mBooksAdapter.clear();
 
         if (books != null) {
@@ -115,5 +123,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
         mBooksAdapter.clear();
+        Log.d(TAG, "onLoaderReset: IN RESET");
     }
 }
