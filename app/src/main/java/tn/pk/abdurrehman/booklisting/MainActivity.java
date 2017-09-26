@@ -9,7 +9,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -78,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mEmptyView.setText(R.string.no_book_name);
         }
 
+        // Setting up Button behavior
         final Button searchButton = (Button) findViewById(R.id.query_search_button);
-
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,11 +109,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     progressBar.setVisibility(View.VISIBLE);
                     // Update keyboard global variable
                     keyword = keywordEntered;
+
+                    // Restart Loader to refresh and re-download data
                     getLoaderManager().restartLoader(BOOKS_LOADER_ID, null, MainActivity.this);
                 }
             }
         });
 
+        // Initializing Loader
         getLoaderManager().initLoader(BOOKS_LOADER_ID, null, MainActivity.this);
 
     }
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (books != null && books.size() > 0) {
             mBooksAdapter.addAll(books);
-        } else if (!keyword.isEmpty()) {
+        } else if (!keyword.isEmpty()) { // If no results found after user typed keyword
             mEmptyView.setText(R.string.no_result);
         }
     }
@@ -139,6 +141,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
         mBooksAdapter.clear();
-        Log.d(TAG, "onLoaderReset: IN RESET");
     }
 }

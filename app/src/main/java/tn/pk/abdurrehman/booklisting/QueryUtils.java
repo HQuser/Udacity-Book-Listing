@@ -192,6 +192,11 @@ public class QueryUtils {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    /**
+     * This method hides the soft keyboard
+     *
+     * @param activity is the context provided
+     */
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) activity.getSystemService(
