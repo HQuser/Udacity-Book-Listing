@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static String keyword = "";
     private ProgressBar progressBar;
     private BooksAdapter mBooksAdapter;
+    private TextView mEmptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // Initializing the required View
         ListView booksListView = (ListView) findViewById(R.id.result_list_view);
-        final TextView emptyView = (TextView) findViewById(R.id.empty_view);
+        mEmptyView = (TextView) findViewById(R.id.empty_view);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mBooksAdapter = new BooksAdapter(this, new ArrayList<Book>());
@@ -69,12 +70,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // If there is no internet connection, simply return
         if (!QueryUtils.hasInternetConnection(this)) {
-            emptyView.setText(R.string.no_internet);
+            mEmptyView.setText(R.string.no_internet);
             return;
         }
 
         if (keyword.isEmpty()) {
-            emptyView.setText(R.string.no_book_name);
+            mEmptyView.setText(R.string.no_book_name);
         }
 
         final Button searchButton = (Button) findViewById(R.id.query_search_button);
@@ -82,9 +83,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Hide soft keyboard
+                QueryUtils.hideSoftKeyboard(MainActivity.this);
+
                 // Again check there is no internet connection, if so simply return
                 if (!QueryUtils.hasInternetConnection(getApplicationContext())) {
-                    emptyView.setText(R.string.no_internet);
+                    mEmptyView.setText(R.string.no_internet);
                     return;
                 }
 
@@ -96,7 +100,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Toast.makeText(MainActivity.this, R.string.no_book_name, Toast.LENGTH_SHORT).show();
 
                 } else if (!keywordEntered.equals(keyword)) {
+                    // Clear previous records
+                    mBooksAdapter.clear();
+
+                    // Clear Empty View
+                    mEmptyView.setText("");
+
+                    // Display progress bar
                     progressBar.setVisibility(View.VISIBLE);
+                    // Update keyboard global variable
                     keyword = keywordEntered;
                     getLoaderManager().restartLoader(BOOKS_LOADER_ID, null, MainActivity.this);
                 }
@@ -117,8 +129,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         progressBar.setVisibility(View.GONE);
         mBooksAdapter.clear();
 
-        if (books != null) {
+        if (books != null && books.size() > 0) {
             mBooksAdapter.addAll(books);
+        } else if (!keyword.isEmpty()) {
+            mEmptyView.setText(R.string.no_result);
         }
     }
 

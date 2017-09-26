@@ -7,5 +7,7 @@
 
     <string name="no_internet">No Internet Connection.</string>
 
-    <string name="enter_book">Enter Book Name To Display Result.</string>
+    <string name="enter_book">Enter Book Name...</string>
+
+    <string name="no_result">No Results Found.</string>
 </resources>
