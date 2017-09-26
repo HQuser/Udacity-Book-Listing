@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Book Listing</string>
+
+    <string name="no_book_name">No Book Name Provided.</string>
+
+    <string name="by">By: </string>
+</resources>
